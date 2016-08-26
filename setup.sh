@@ -7,9 +7,7 @@ cd `dirname "$0"` \
 	|| die "Enter script's directory"
 
 # 0. Fix apt
-rm /etc/apt/sources.list \
-	|| die 'Remove sources.list'
-install -o root -g root -m 644 misc/sources.list /etc/apt/sources.list \
+cp misc/sources.list /etc/apt/sources.list \
 	|| die 'Select repositories'
 install -o root -g root -m 644 misc/10no-check-valid-until /etc/apt/apt.conf.d/10no-check-valid-until \
 	|| die 'Fix repository "valid until" behaviour'
@@ -58,7 +56,9 @@ chown -R root:root /usr/share/themes/win2k/ \
 	|| die 'Ensure proper ownership of win2k/'
 
 # 6. Configure XTerm
-install -o root -g root -m 644 misc/xterm /etc/X11/Xresources/xterm \
+rm /etc/X11/Xresources/x11-common \
+	|| die 'Remove x11-common'
+install -o root -g root -m 644 misc/x11-common /etc/X11/Xresources/x11-common \
 	|| die 'Configure XTerm'
 
 # 7. Fix key repeat
@@ -77,5 +77,8 @@ install -o root -g root -m 644 misc/tint2rc /etc/xdg/tint2/tint2rc \
 
 # 10. Update font cache
 fc-cache -f -v
+
+# 11. Eliminate password failure delays (given physical access)
+sed -i '/pam_unix.so/ s/$/ nodelay/' /etc/pam.d/common-auth
 
 echo 'Done.'
