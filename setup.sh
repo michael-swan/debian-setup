@@ -7,12 +7,10 @@ cd `dirname "$0"` \
 	|| die "Enter script's directory"
 
 # 0. Fix apt
-cat >/etc/apt/sources.list <<-EOF
-deb http://ftp.us.debian.org/debian/ jessie main contrib non-free
-deb http://ftp.us.debian.org/debian/ jessie-updates main contrib non-free
-deb http://security.debian.org/ jessie/updates main contrib non-free
-EOF	|| die 'Select repositories'
-
+rm /etc/apt/sources.list \
+	|| die 'Remove sources.list'
+install -o root -g root -m 644 misc/sources.list /etc/apt/sources.list \
+	|| die 'Select repositories'
 install -o root -g root -m 644 misc/10no-check-valid-until /etc/apt/apt.conf.d/10no-check-valid-until \
 	|| die 'Fix repository "valid until" behaviour'
 
@@ -34,14 +32,14 @@ adduser "$user" sudo \
 	|| die 'Add default user to sudo group'
 
 # 3. Fix fonts
+apt remove fonts-dejavu-core ttf-bitstream-vera fonts-droid \
+	|| die 'Uninstall awful fonts'
 rm /etc/fonts/conf.d/{10-scale-bitmap-fonts.conf,70-no-bitmaps.conf} \
 	|| die 'Enable bitmap fonts'
 sed -i 's/Bitstream Vera/Liberation/; s/Liberation Sans Mono/Liberation Mono/' /etc/fonts/conf.d/*-latin.conf \
 	|| die 'Configure latin fonts'
 install -o root -g root -m 644 misc/local.conf /etc/fonts/local.conf \
 	|| die 'Fix font aliasing and hinting'
-apt remove fonts-dejavu-core ttf-bitstream-vera fonts-droid \
-	|| die 'Uninstall awful fonts'
 
 # 4. Install Gohu and Tahoma fonts
 cp -rp gohu/ /usr/share/fonts/X11/ \
@@ -50,6 +48,8 @@ cp -rp tahoma/ /usr/share/fonts/truetype/ \
 	|| die 'Copy tahoma/'
 chown -R root:root /usr/share/fonts/X11/gohu/ /usr/share/fonts/truetype/tahoma/ \
 	|| die 'Ensure proper ownership of gohu/ and tahoma/'
+install -o root -g root -m 644 misc/20-fonts.conf /usr/share/X11/xorg.conf.d/20-fonts.conf \
+	|| die 'Add gohu/ to Xorg FontPath'
 
 # 5. Install Windows 2000 Theme
 cp -rp win2k/ /usr/share/themes/ \
