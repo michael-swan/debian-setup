@@ -74,3 +74,8 @@ chown -R root:root /etc/xdg/openbox/ \
 # 9. Configure Tint2
 install -o root -g root -m 644 misc/tint2rc /etc/xdg/tint2/tint2rc \
 	|| die 'Configure Tint2'
+
+# 10. Update font cache
+fc-cache -f -v
+
+echo 'Done.'
