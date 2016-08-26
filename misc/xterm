@@ -1,0 +1,17 @@
+xterm*termName: xterm-256color
+xterm*font: -gohu-gohufont-medium-r-normal--14-*-*-*-*-*-*-*
+xterm*boldFont: fixed
+xterm*boldMode: false
+xterm*colorBDMode: true
+xterm*colorBD: rgb:00/00/00
+xterm*metaSendsEscape: true
+xterm*foreground:  gray80
+xterm*background:  gray10
+xterm*cursorColor: green
+xterm*saveLines: 5500
+xterm*scrollKey: true
+xterm*scrollTtyOutput: false
+xterm*showBlinkAsBold: true
+*VT100*eightBitInput:   false
+*VT100*eightBitControl: false
+*VT100*eightBitOutput:  true
