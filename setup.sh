@@ -140,4 +140,30 @@ if [ "$x" -ne "$none" ]; then
 	done
 fi
 
+# 17. Configure global vimrc
+sed -i 's/"syntax on/syntax on/' /etc/vim/vimrc \
+	|| echo 'syntax on' >> /etc/vim/vimrc.local \
+	|| die 'Add "syntax on" to global vimrc'
+sed -i 's/"set background=dark/set background=dark/' /etc/vim/vimrc \
+	|| echo 'set background=dark' >> /etc/vim/vimrc.local \
+	|| die 'Add "set background=dark" to global vimrc'
+sed -i 's/"set showmatch/set showmatch/' /etc/vim/vimrc \
+	|| echo 'set showmatch' >> /etc/vim/vimrc.local \
+	|| die 'Add "set showmatch" to global vimrc'
+sed -i 's/"set ignorecase/set ignorecase/' /etc/vim/vimrc \
+	|| echo 'set ignorecase' >> /etc/vim/vimrc.local \
+	|| die 'Add "set ignorecase" to global vimrc'
+sed -i 's/"set incsearch/set incsearch/' /etc/vim/vimrc \
+	|| echo 'set incsearch' >> /etc/vim/vimrc.local \
+	|| die 'Add "set incsearch" to global vimrc'
+echo 'filetype plugin indent on' >> /etc/vim/vimrc.local \
+	|| die 'Add "filetype plugin indent on" to global vimrc'
+chmod 644 /etc/vim/vimrc.local
+	|| die 'Ensure proper permission mode of global vimrc'
+chown root:root /etc/vim/vimrc.local
+	|| die 'Ensure proper owner of global vimrc'
+
+# 18. Remove pointless default user skeleton
+sudo -u "$user" bash -c 'rmdir ~/{Desktop,Documents,Downloads,Music,Pictures,Public,Templates,Videos}' 2>/dev/null
+
 echo 'Done.'
