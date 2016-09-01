@@ -164,4 +164,15 @@ chown root:root /etc/vim/vimrc.local
 # 18. Remove pointless default user skeleton
 sudo -u "$user" bash -c 'rmdir ~/{Desktop,Documents,Downloads,Music,Pictures,Public,Templates,Videos}' 2>/dev/null
 
+# 19. Install Google Chrome
+wget -o /tmp/google-chrome.deb https://dl.google.com/linux/direct/google-chrome-stable_current_amd64.deb \
+	|| die 'Download google-chrome.deb'
+dpkg -i /tmp/google-chrome.deb \
+	|| die 'Start google-chrome.deb install'
+apt -f install \
+	|| die 'Finish google-chrome.deb install'
+rm /tmp/google-chrome.deb
+install -o root -g root -m 755 misc/chrome /usr/local/bin/chrome \
+	|| die 'Add font fixing short-hand command for opening Google Chrome'
+
 echo 'Done.'

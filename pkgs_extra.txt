@@ -1,1 +1,1 @@
-kdevelop valgrind strace ltrace clang
+kdevelop valgrind strace ltrace clang subversion curl
