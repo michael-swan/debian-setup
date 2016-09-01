@@ -107,5 +107,9 @@ sudo -u "$user" ssh-keygen \
 # 15. Disable remote fonts in Chromium
 echo 'export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-remote-fonts"' >> /etc/chromium.d/default-flags \
 	|| die 'Disable remote fonts in Chromium'
+chmod 644 /etc/chromium.d/default-flags \
+	|| die 'Ensure proper permission mode of Chromium default-flags'
+chown root:root /etc/chromium.d/default-flags \
+	|| die 'Ensure proper owner of Chromium default-flags'
 
 echo 'Done.'
