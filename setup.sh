@@ -112,4 +112,32 @@ chmod 644 /etc/chromium.d/default-flags \
 chown root:root /etc/chromium.d/default-flags \
 	|| die 'Ensure proper owner of Chromium default-flags'
 
+# 16. Install system-specific Xorg drivers
+video_drivers=`apt-cache pkgnames xserver-xorg-video | grep -v dbg | sort -u` \
+	|| die 'Find Xorg video driver candidates'
+x=0
+echo 'Select an Xorg Video Driver'
+for video_driver in $video_drivers; do
+	echo "  $x:" ${video_driver#xserver-xorg-video-}
+	x=$((x+1))
+done
+
+echo "  $x: NONE"
+none=$x
+
+echo -n '> '; read x \
+	|| die 'Read video driver selection'
+
+if [ "$x" -ne "$none" ]; then
+	y=0
+	for video_driver in $video_drivers; do
+		if [ "$x" -eq "$y" ]; then
+			apt install "$video_driver" \
+				|| die 'Install Xorg video driver'
+			break
+		fi
+		y=$((y+1))
+	done
+fi
+
 echo 'Done.'
