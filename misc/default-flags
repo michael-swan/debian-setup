@@ -1,0 +1,3 @@
+
+# Disable remote fonts (because they seldom provide any hinting)
+export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-remote-fonts"
