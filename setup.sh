@@ -91,7 +91,9 @@ install -o root -g root -m 644 misc/editor.sh /etc/profile.d/editor.sh
 echo 'Git Configuration'
 
 echo -n 'Full Name:'; read git_name
-echo -n 'Email:'; read git_email
+	|| die 'Read git full name'
+echo -n 'Email:';     read git_email
+	|| die 'Read git email'
 
 sudo -u "$user" git config --global user.name "$git_name"
 	|| die 'Set git full name'
