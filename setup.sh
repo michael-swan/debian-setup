@@ -32,8 +32,7 @@ adduser "$user" sudo \
 # 3. Fix fonts
 apt remove fonts-dejavu-core ttf-bitstream-vera fonts-droid \
 	|| die 'Uninstall awful fonts'
-rm /etc/fonts/conf.d/{10-scale-bitmap-fonts.conf,70-no-bitmaps.conf} \
-	|| die 'Enable bitmap fonts'
+rm /etc/fonts/conf.d/{10-scale-bitmap-fonts.conf,70-no-bitmaps.conf}
 sed -i 's/Bitstream Vera/Liberation/; s/Liberation Sans Mono/Liberation Mono/' /etc/fonts/conf.d/*-latin.conf \
 	|| die 'Configure latin fonts'
 install -o root -g root -m 644 misc/local.conf /etc/fonts/local.conf \
@@ -56,8 +55,7 @@ chown -R root:root /usr/share/themes/win2k/ \
 	|| die 'Ensure proper ownership of win2k/'
 
 # 6. Configure XTerm
-rm /etc/X11/Xresources/x11-common \
-	|| die 'Remove x11-common'
+rm /etc/X11/Xresources/x11-common
 install -o root -g root -m 644 misc/x11-common /etc/X11/Xresources/x11-common \
 	|| die 'Configure XTerm'
 
