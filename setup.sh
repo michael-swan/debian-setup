@@ -76,36 +76,36 @@ install -o root -g root -m 644 misc/tint2rc /etc/xdg/tint2/tint2rc \
 	|| die 'Configure Tint2'
 
 # 10. Update font cache
-fc-cache -f -v
+fc-cache -f -v \
 	|| die 'Update font cache'
 
 # 11. Eliminate password failure delays (given physical access)
-sed -i '/pam_unix.so/ s/$/ nodelay/' /etc/pam.d/common-auth
+sed -i '/pam_unix.so/ s/$/ nodelay/' /etc/pam.d/common-auth \
 	|| die 'Eliminate password failure delays'
 
 # 12. Change default editor to vim
-install -o root -g root -m 644 misc/editor.sh /etc/profile.d/editor.sh
+install -o root -g root -m 644 misc/editor.sh /etc/profile.d/editor.sh \
 	|| die 'Change default editor to vim'
 
 # 13. Set git configuration
 echo 'Git Configuration'
 
-echo -n 'Full Name:'; read git_name
+echo -n 'Full Name:'; read git_name \
 	|| die 'Read git full name'
-echo -n 'Email:';     read git_email
+echo -n 'Email:';     read git_email \
 	|| die 'Read git email'
 
-sudo -u "$user" git config --global user.name "$git_name"
+sudo -u "$user" git config --global user.name "$git_name" \
 	|| die 'Set git full name'
-sudo -u "$user" git config --global user.email "$git_email"
+sudo -u "$user" git config --global user.email "$git_email" \
 	|| die 'Set git email'
 
 # 14. Generate a new SSH key
-sudo -u "$user" ssh-keygen
+sudo -u "$user" ssh-keygen \
 	|| die 'Generate a new SSH key'
 
 # 15. Disable remote fonts in Chromium
-echo 'export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-remote-fonts"' >> /etc/chromium.d/default-flags
+echo 'export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-remote-fonts"' >> /etc/chromium.d/default-flags \
 	|| die 'Disable remote fonts in Chromium'
 
 echo 'Done.'
