@@ -1,1 +1,1 @@
-sudo aptitude firmware-linux-nonfree vim xserver-xorg-input-evdev xinit xserver-xorg silversearcher-ag git htop irssi openbox tint2 xterm fonts-liberation x11-xserver-utils chromium gmrun wget
+sudo aptitude firmware-linux-nonfree vim xserver-xorg-input-evdev xinit xserver-xorg silversearcher-ag git htop irssi openbox tint2 xterm fonts-liberation x11-xserver-utils chromium gmrun wget gnome-screenshot wine unzip wine-binfmt filezilla pcmanfm vlc steam spotify-client alsa-utils

@@ -220,62 +220,6 @@
       </action>
     </keybind>
     <!-- Aero Snap for Openbox Begin Code-->
-    <keybind key="A-Left">
-      <action name="MoveResizeTo">
-        <x>0</x>
-        <y>0</y>
-        <height>100%</height>
-        <width>50%</width>
-      </action>
-    </keybind>
-    <keybind key="A-Right">
-      <action name="MoveResizeTo">
-        <x>-0</x>
-        <y>0</y>
-        <height>100%</height>
-        <width>50%</width>
-      </action>
-    </keybind>
-    <keybind key="A-Up">
-      <action name="MoveResizeTo">
-        <x>0</x>
-        <y>0</y>
-        <width>100%</width>
-        <height>100%</height>
-      </action>
-    </keybind>
-    <keybind key="A-Prior">
-      <action name="MoveResizeTo">
-        <x>-0</x>
-        <y>0</y>
-        <height>50%</height>
-        <width>50%</width>
-      </action>
-    </keybind>
-    <keybind key="A-Next">
-      <action name="MoveResizeTo">
-        <x>-0</x>
-        <y>-0</y>
-        <height>50%</height>
-        <width>50%</width>
-      </action>
-    </keybind>
-    <keybind key="A-Home">
-      <action name="MoveResizeTo">
-        <x>0</x>
-        <y>0</y>
-        <height>50%</height>
-        <width>50%</width>
-      </action>
-    </keybind>
-    <keybind key="A-End">
-      <action name="MoveResizeTo">
-        <x>0</x>
-        <y>-0</y>
-        <height>50%</height>
-        <width>50%</width>
-      </action>
-    </keybind>
     <keybind key="W-Left">
       <action name="MoveResizeTo">
         <x>0</x>

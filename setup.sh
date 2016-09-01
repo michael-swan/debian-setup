@@ -11,7 +11,8 @@ cp misc/sources.list /etc/apt/sources.list \
 	|| die 'Select repositories'
 install -o root -g root -m 644 misc/10no-check-valid-until /etc/apt/apt.conf.d/10no-check-valid-until \
 	|| die 'Fix repository "valid until" behaviour'
-
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv-keys 94558F59 \
+	|| die 'Authorize Spotify repositories'
 dpkg --add-architecture i386 \
 	|| die 'Add i386 architecture'
 apt update \
@@ -161,7 +162,7 @@ chmod 644 /etc/vim/vimrc.local
 chown root:root /etc/vim/vimrc.local
 	|| die 'Ensure proper owner of global vimrc'
 
-# 18. Remove pointless default user skeleton
+# 18. Remove XDG user directories
 sudo -u "$user" bash -c 'rmdir ~/{Desktop,Documents,Downloads,Music,Pictures,Public,Templates,Videos}' 2>/dev/null
 
 # 19. Install Google Chrome
@@ -174,5 +175,29 @@ apt -f install \
 rm /tmp/google-chrome.deb
 install -o root -g root -m 755 misc/chrome /usr/local/bin/chrome \
 	|| die 'Add font fixing short-hand command for opening Google Chrome'
+
+# 20. Setup binfmt_misc for executing Windows programs with Wine
+install -o root -g root -m 644 misc/wine.conf /etc/binfmt.d/wine.conf \
+	|| die 'Setup binfmt_misc for Windows programs'
+
+# 21. Install FamiTracker (expects wine-binfmt to be installed)
+install -o root -g root -m 755 misc/famitracker /usr/local/bin/famitracker \
+	|| die 'Install FamiTracker'
+
+# 22. Install DefleMask
+apt install `cat pkgs_deflemask.txt` \
+	|| die 'Install DefleMask dependencies'
+tar xf -C /opt deflemask.tar.gz \
+	|| die 'Extract DefleMask into /opt/deflemask'
+chown -R root:root /opt/deflemask \
+	|| die 'Ensure proper owner of /opt/deflemask'
+install -o root -g root -m 755 misc/deflemask /usr/local/bin/deflemask \
+	|| die 'Add an in-path DefleMask alias'
+
+# 23. Select the correct Filezilla theme
+sudo -u "$user" bash -c 'mkdir -p ~/.config/filezilla' \
+	|| die 'Create Filezilla configuration directory'
+install -o "$user" -g "$user" -m 644 misc/filezilla.xml "/home/$user/.config/filezilla/filezilla.xml"
+	|| die 'Install Filezilla configuration'
 
 echo 'Done.'
