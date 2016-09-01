@@ -77,8 +77,10 @@ install -o root -g root -m 644 misc/tint2rc /etc/xdg/tint2/tint2rc \
 
 # 10. Update font cache
 fc-cache -f -v
+	|| die 'Update font cache'
 
 # 11. Eliminate password failure delays (given physical access)
 sed -i '/pam_unix.so/ s/$/ nodelay/' /etc/pam.d/common-auth
+	|| die 'Eliminate password failure delays'
 
 echo 'Done.'
