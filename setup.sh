@@ -83,4 +83,19 @@ fc-cache -f -v
 sed -i '/pam_unix.so/ s/$/ nodelay/' /etc/pam.d/common-auth
 	|| die 'Eliminate password failure delays'
 
+# 12. Change default editor to vim
+install -o root -g root -m 644 misc/editor.sh /etc/profile.d/editor.sh
+
+# 13. Set git credentials
+echo 'Git Configuration'
+
+echo -n 'Full Name:'; read git_name
+echo -n 'Email:'; read git_email
+
+sudo -u "$user" git config --global user.name "$git_name"
+sudo -u "$user" git config --global user.name "$git_email"
+
+# 14. Generate a new SSH key
+sudo -u "$user" ssh-keygen
+
 echo 'Done.'
