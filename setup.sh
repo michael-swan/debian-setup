@@ -85,17 +85,25 @@ sed -i '/pam_unix.so/ s/$/ nodelay/' /etc/pam.d/common-auth
 
 # 12. Change default editor to vim
 install -o root -g root -m 644 misc/editor.sh /etc/profile.d/editor.sh
+	|| die 'Change default editor to vim'
 
-# 13. Set git credentials
+# 13. Set git configuration
 echo 'Git Configuration'
 
 echo -n 'Full Name:'; read git_name
 echo -n 'Email:'; read git_email
 
 sudo -u "$user" git config --global user.name "$git_name"
-sudo -u "$user" git config --global user.name "$git_email"
+	|| die 'Set git full name'
+sudo -u "$user" git config --global user.email "$git_email"
+	|| die 'Set git email'
 
 # 14. Generate a new SSH key
 sudo -u "$user" ssh-keygen
+	|| die 'Generate a new SSH key'
+
+# 15. Disable remote fonts in Chromium
+echo 'export CHROMIUM_FLAGS="$CHROMIUM_FLAGS --disable-remote-fonts"' >> /etc/chromium.d/default-flags
+	|| die 'Disable remote fonts in Chromium'
 
 echo 'Done.'
