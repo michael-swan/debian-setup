@@ -2,6 +2,50 @@
 
 # Setup environment
 die() { echo FAILURE: "$@" 1>&2; exit 1; }
+valid_reg() {
+	local access uid gid
+	read -r access uid gid < <(stat -c '%a %u %g' "$1")
+	[[ "$access" -eq 644 && "$uid" -eq 0 && "$gid" -eq 0]] || die "Invalid permission mode, owner, or group for regular file '$1'"
+}
+valid_exe() {
+	local access uid gid
+	read -r access uid gid < <(stat -c '%a %u %g' "$1")
+	[[ "$access" -eq 755 && "$uid" -eq 0 && "$gid" -eq 0]] || die "Invalid permission mode, owner, or group for executable file '$1'"
+}
+valid_dir() {
+	local access uid gid
+	read -r access uid gid < <(stat -c '%a %u %g' "$1")
+	[[ "$access" -eq 755 && "$uid" -eq 0 && "$gid" -eq 0]] || die "Invalid permission mode, owner, or group for directory '$1'"
+}
+find_exe() {
+	find "$@" -type f -executable
+}
+find_reg() {
+	find "$@" -type f -not -executable
+}
+find_dir() {
+	find "$@" -type d
+}
+valid_tree() {
+	find_exe "$@" | while read file; do
+		valid_exe "$file"
+	done
+	find_reg "$@" | while read file; do
+		valid_reg "$file"
+	done
+	find_dir "$@" | while read dir; do
+		valid_dir "$dir"
+	done
+}
+no_exe_tree() {
+	find_exe /usr/share/fonts/X11/gohu/ /usr/share/fonts/truetype/tahoma/ | while read file; do
+		die 'Verify no executable files in gohu/ or tahoma/'
+	done
+}
+# NOTE: A "valid" file/directory in this case simply refers to those with the most common default permission settings.
+
+[ `id -u` -eq 0 ] || die 'Must be run as root'
+umask 0022 || die 'Must set permission mask to 0022'
 
 cd `dirname "$0"` \
 	|| die "Enter script's directory"
@@ -25,7 +69,7 @@ apt install `cat pkgs.txt` \
 	|| die 'Install base packages'
 
 # 2. Configure default user
-user=`getent passwd 1000 | cut -d: -f1` \
+user=`id -nu 1000` \
 	|| die "Find default user's username"
 adduser "$user" sudo \
 	|| die 'Add default user to sudo group'
@@ -36,6 +80,8 @@ apt remove fonts-dejavu-core ttf-bitstream-vera fonts-droid \
 rm /etc/fonts/conf.d/{10-scale-bitmap-fonts.conf,70-no-bitmaps.conf}
 sed -i 's/Bitstream Vera/Liberation/; s/Liberation Sans Mono/Liberation Mono/' /etc/fonts/conf.d/*-latin.conf \
 	|| die 'Configure latin fonts'
+grep 'Bitstream Vera' /etc/fonts/conf.d/*-latin.conf \
+	&& die 'Verify configuration of latin fonts'
 install -o root -g root -m 644 misc/local.conf /etc/fonts/local.conf \
 	|| die 'Fix font aliasing and hinting'
 
@@ -44,16 +90,16 @@ cp -rp gohu/ /usr/share/fonts/X11/ \
 	|| die 'Copy gohu/'
 cp -rp tahoma/ /usr/share/fonts/truetype/ \
 	|| die 'Copy tahoma/'
-chown -R root:root /usr/share/fonts/X11/gohu/ /usr/share/fonts/truetype/tahoma/ \
-	|| die 'Ensure proper ownership of gohu/ and tahoma/'
 install -o root -g root -m 644 misc/20-fonts.conf /usr/share/X11/xorg.conf.d/20-fonts.conf \
 	|| die 'Add gohu/ to Xorg FontPath'
+valid_tree /usr/share/fonts/X11/gohu/ /usr/share/fonts/truetype/tahoma/
+no_exe_tree /usr/share/fonts/X11/gohu/ /usr/share/fonts/truetype/tahoma/
 
 # 5. Install Windows 2000 Theme
 cp -rp win2k/ /usr/share/themes/ \
 	|| die 'Copy win2k/'
-chown -R root:root /usr/share/themes/win2k/ \
-	|| die 'Ensure proper ownership of win2k/'
+valid_tree /usr/share/themes/win2k/
+no_exe_tree /usr/share/themes/win2k/
 
 # 6. Configure XTerm
 rm /etc/X11/Xresources/x11-common
@@ -67,8 +113,14 @@ install -o root -g root -m 644 misc/70-key-repeat /etc/X11/Xsession.d/70-key-rep
 # 8. Configure OpenBox
 cp -rp openbox/ /etc/xdg/ \
 	|| die 'Copy openbox/'
-chown -R root:root /etc/xdg/openbox/ \
-	|| die 'Ensure proper ownership of openbox/'
+valid_tree /etc/xdg/openbox/
+autostart_is_exe=0
+find_exe /etc/xdg/openbox/ | while read file; do
+	[ "$file" == /etc/xdg/openbox/autostart ] && autostart_is_exe=1
+	[ "$file" != /etc/xdg/openbox/autostart ] && die 'Verify a minimal set of executables in openbox/'
+done
+[ "$autostart_is_exe" -eq 1 ] || die 'Verify openbox/autostart is executable'
+unset autostart_is_exe
 
 # 9. Configure Tint2
 install -o root -g root -m 644 misc/tint2rc /etc/xdg/tint2/tint2rc \
@@ -81,6 +133,7 @@ fc-cache -f -v \
 # 11. Eliminate password failure delays (given physical access)
 sed -i '/pam_unix.so/ s/$/ nodelay/' /etc/pam.d/common-auth \
 	|| die 'Eliminate password failure delays'
+grep 'nodelay' /etc/pam.d/common-auth && die 'Verify password failure delays have been eliminated'
 
 # 12. Change default editor to vim
 install -o root -g root -m 644 misc/editor.sh /etc/profile.d/editor.sh \
@@ -106,10 +159,7 @@ sudo -u "$user" ssh-keygen \
 # 15. Disable remote fonts in Chromium
 cat misc/default-flags >> /etc/chromium.d/default-flags \
 	|| die 'Disable remote fonts in Chromium'
-chmod 644 /etc/chromium.d/default-flags \
-	|| die 'Ensure proper permission mode of Chromium default-flags'
-chown root:root /etc/chromium.d/default-flags \
-	|| die 'Ensure proper owner of Chromium default-flags'
+valid_reg /etc/chromium.d/default-flags
 
 # 16. Install system-specific Xorg drivers
 video_drivers=`apt-cache pkgnames xserver-xorg-video | grep -v dbg | sort -u` \
@@ -157,10 +207,7 @@ sed -i 's/"set incsearch/set incsearch/' /etc/vim/vimrc \
 	|| die 'Add "set incsearch" to global vimrc'
 echo 'filetype plugin indent on' >> /etc/vim/vimrc.local \
 	|| die 'Add "filetype plugin indent on" to global vimrc'
-chmod 644 /etc/vim/vimrc.local
-	|| die 'Ensure proper permission mode of global vimrc'
-chown root:root /etc/vim/vimrc.local
-	|| die 'Ensure proper owner of global vimrc'
+valid_reg /etc/vim/vimrc.local
 
 # 18. Remove XDG user directories
 sudo -u "$user" bash -c 'rmdir ~/{Desktop,Documents,Downloads,Music,Pictures,Public,Templates,Videos}' 2>/dev/null
@@ -189,15 +236,19 @@ apt install `cat pkgs_deflemask.txt` \
 	|| die 'Install DefleMask dependencies'
 tar xf -C /opt deflemask.tar.gz \
 	|| die 'Extract DefleMask into /opt/deflemask'
-chown -R root:root /opt/deflemask \
-	|| die 'Ensure proper owner of /opt/deflemask'
 install -o root -g root -m 755 misc/deflemask /usr/local/bin/deflemask \
 	|| die 'Add an in-path DefleMask alias'
+valid_tree /opt/deflemask
 
 # 23. Select the correct Filezilla theme
 sudo -u "$user" bash -c 'mkdir -p ~/.config/filezilla' \
 	|| die 'Create Filezilla configuration directory'
-install -o "$user" -g "$user" -m 644 misc/filezilla.xml "/home/$user/.config/filezilla/filezilla.xml"
+install -o "$user" -g "$user" -m 644 misc/filezilla.xml "`echo ~$user`/.config/filezilla/filezilla.xml"
 	|| die 'Install Filezilla configuration'
+
+# 24. Share bash history between all instances
+cat misc/bash-history.sh >> /etc/bash.bashrc \
+	|| die 'Make bash history between all instances'
+valid_reg /etc/bash.bashrc
 
 echo 'Done.'
