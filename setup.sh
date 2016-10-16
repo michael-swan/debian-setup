@@ -107,7 +107,7 @@ install -o root -g root -m 644 misc/x11-common /etc/X11/Xresources/x11-common \
 	|| die 'Configure XTerm'
 
 # 7. Fix key repeat
-install -o root -g root -m 644 misc/70-key-repeat /etc/X11/Xsession.d/70-key-repeat \
+sed -i '/\/usr\/bin\/X/ s/$/ -ardelay 200 -arinterval 25/' /etc/X11/xinit/xserverrc \
 	|| die 'Fix key repeat'
 
 # 8. Configure OpenBox
