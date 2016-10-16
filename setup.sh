@@ -251,4 +251,8 @@ cat misc/bash-history.sh >> /etc/bash.bashrc \
 	|| die 'Make bash history between all instances'
 valid_reg /etc/bash.bashrc
 
+# 25. Configure hwclock to assume local time
+sed -i 's/UTC/LOCAL/' /etc/adjtime \
+    || die 'Configure hwclock to assume local time'
+
 echo 'Done.'
