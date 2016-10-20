@@ -251,4 +251,20 @@ cat misc/bash-history.sh >> /etc/bash.bashrc \
 	|| die 'Make bash history between all instances'
 valid_reg /etc/bash.bashrc
 
+# 25. Disable smooth scrolling
+mkdir -p /etc/skel/.config/{chromium,google-chrome} \
+	|| die 'Create Google Chrome/Chromium user skeleton configuration directories'
+for dir in /etc/skel/.config/{chromium,google-chrome}; do
+	cp misc/chrome-local-state "$dir/Local State" \
+		|| die 'Copy Chrome "Local State" to skeleton configuration directories'
+done
+chmod 600 /etc/skel/.config/{chromium,google-chrome}/"Local State" \
+	|| die 'Correct permission mask on Google Chrome/Chromium local state'
+sudo -u "$user" bash -c 'mkdir -p ~/.config/{chromium,google-chrome}' \
+	|| die 'Create user Google Chrome/Chromium configuration directories'
+install -o "$user" -g "$user" -m 600 misc/chrome-local-state "`echo ~$user`/.config/chromium/Local State"
+	|| die 'Install Chromium configuration, disabling smooth scrolling'
+install -o "$user" -g "$user" -m 600 misc/chrome-local-state "`echo ~$user`/.config/google-chrome/Local State"
+	|| die 'Install Google Chrome configuration, disabling smooth scrolling'
+
 echo 'Done.'
