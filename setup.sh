@@ -107,7 +107,7 @@ install -o root -g root -m 644 misc/x11-common /etc/X11/Xresources/x11-common \
 	|| die 'Configure XTerm'
 
 # 7. Fix key repeat
-install -o root -g root -m 644 misc/70-key-repeat /etc/X11/Xsession.d/70-key-repeat \
+sed -i '/\/usr\/bin\/X/ s/$/ -ardelay 200 -arinterval 25/' /etc/X11/xinit/xserverrc \
 	|| die 'Fix key repeat'
 
 # 8. Configure OpenBox
@@ -251,7 +251,11 @@ cat misc/bash-history.sh >> /etc/bash.bashrc \
 	|| die 'Make bash history between all instances'
 valid_reg /etc/bash.bashrc
 
-# 25. Disable smooth scrolling
+# 25. Configure hwclock to assume local time
+sed -i 's/UTC/LOCAL/' /etc/adjtime \
+    || die 'Configure hwclock to assume local time'
+
+# 26. Disable smooth scrolling
 mkdir -p /etc/skel/.config/{chromium,google-chrome} \
 	|| die 'Create Google Chrome/Chromium user skeleton configuration directories'
 for dir in /etc/skel/.config/{chromium,google-chrome}; do
