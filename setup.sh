@@ -266,9 +266,13 @@ chmod 600 /etc/skel/.config/{chromium,google-chrome}/"Local State" \
 	|| die 'Correct permission mask on Google Chrome/Chromium local state'
 sudo -u "$user" bash -c 'mkdir -p ~/.config/{chromium,google-chrome}' \
 	|| die 'Create user Google Chrome/Chromium configuration directories'
-install -o "$user" -g "$user" -m 600 misc/chrome-local-state "`echo ~$user`/.config/chromium/Local State"
+install -o "$user" -g "$user" -m 600 misc/chrome-local-state "`echo ~$user`/.config/chromium/Local State" \
 	|| die 'Install Chromium configuration, disabling smooth scrolling'
-install -o "$user" -g "$user" -m 600 misc/chrome-local-state "`echo ~$user`/.config/google-chrome/Local State"
+install -o "$user" -g "$user" -m 600 misc/chrome-local-state "`echo ~$user`/.config/google-chrome/Local State" \
 	|| die 'Install Google Chrome configuration, disabling smooth scrolling'
+
+# 27. Install default desktop wallpaper
+install -o "$user" -g "$user" -m 644 misc/bg.jpg "`echo ~$user`/.bg.jpg" \
+    || die 'Install default desktop wallpaper'
 
 echo 'Done.'
