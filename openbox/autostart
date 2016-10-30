@@ -1,3 +1,4 @@
 tint2 &
 xset r rate 200 50
+which nvidia-settings && nvidia-settings --assign CurrentMetaMode="nvidia-auto-select +0+0 { ForceCompositionPipeline = On }"
 [ -e "$HOME/.bg.jpg" ] && feh --bg-center "$HOME/.bg.jpg"
